@@ -1,4 +1,4 @@
-import axios from 'axios';
+// Axios removed in favor of native fetch
 
 // Configure your backend URL here
 // For Expo:
@@ -8,7 +8,9 @@ import axios from 'axios';
 // - Expo Go: use your computer's IP address
 
 // Change this to your computer's IP when testing on physical device or Expo Go
-const API_BASE_URL = 'https://5ccc-41-204-44-3.ngrok-free.app'; // Update with your IP address
+
+// Change this to your computer's IP when testing on physical device or Expo Go
+const API_BASE_URL = 'https://1a7d-41-204-44-3.ngrok-free.app'; // Update with your IP address
 
 /**
  * Upload an image to the backend for disease prediction
@@ -25,40 +27,35 @@ export const predictDisease = async (imageFile) => {
       name: imageFile.name || 'tomato_image.jpg',
     });
 
-    // Send POST request to /predict endpoint
-    const response = await axios.post(`${API_BASE_URL}/predict`, formData, {
+    // Send POST request to /predict endpoint using fetch
+    const response = await fetch(`${API_BASE_URL}/predict`, {
+      method: 'POST',
+      body: formData,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      timeout: 30000, // 30 second timeout
     });
 
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    // Handle different error scenarios
-    if (error.response) {
-      // Server responded with error status
+    const responseData = await response.json();
+
+    if (response.ok) {
       return {
-        success: false,
-        error: error.response.data.detail || 'Server error occurred',
-        statusCode: error.response.status,
-      };
-    } else if (error.request) {
-      // Request made but no response received
-      return {
-        success: false,
-        error: 'Cannot connect to server. Please check your connection and ensure the backend is running.',
+        success: true,
+        data: responseData,
       };
     } else {
-      // Other errors
       return {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: responseData.detail || 'Server error occurred',
+        statusCode: response.status,
       };
     }
+  } catch (error) {
+    console.error('Prediction Error:', error);
+    return {
+      success: false,
+      error: 'Cannot connect to server. Please check your connection.',
+    };
   }
 };
 
@@ -68,12 +65,11 @@ export const predictDisease = async (imageFile) => {
  */
 export const checkServerHealth = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/health`, {
-      timeout: 5000,
-    });
+    const response = await fetch(`${API_BASE_URL}/health`);
+    const data = await response.json();
     return {
       success: true,
-      data: response.data,
+      data: data,
     };
   } catch (error) {
     return {
@@ -82,3 +78,4 @@ export const checkServerHealth = async () => {
     };
   }
 };
+
