@@ -1,4 +1,37 @@
 {
-    "name": "TomatoDiseaseDetector",
-    "displayName": "TomatoDiseaseDetector"
+    "expo": {
+        "name": "Tomato Disease Detector",
+        "slug": "tomato-disease-detector",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/tomato-icon.png",
+        "userInterfaceStyle": "light",
+        "splash": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#4CAF50"
+        },
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.tomatodiseasedetector"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/tomato-icon.png",
+                "backgroundColor": "#4CAF50"
+            },
+            "package": "com.tomatodiseasedetector",
+            "permissions": [
+                "CAMERA",
+                "READ_EXTERNAL_STORAGE",
+                "WRITE_EXTERNAL_STORAGE"
+            ]
+        },
+        "web": {
+            "favicon": "./assets/tomato-icon.png"
+        }
+    }
 }

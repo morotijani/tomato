@@ -9,31 +9,24 @@ import {
     Alert,
     ScrollView,
 } from 'react-native';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import { predictDisease } from '../services/api';
 
 const HomeScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
 
-    const imagePickerOptions = {
-        mediaType: 'photo',
-        quality: 0.8,
-        maxWidth: 1024,
-        maxHeight: 1024,
-    };
-
-    const handleImagePicked = async imageResponse => {
-        if (imageResponse.didCancel) {
+    const handleImagePicked = async imageUri => {
+        if (!imageUri) {
             return;
         }
 
-        if (imageResponse.errorCode) {
-            Alert.alert('Error', imageResponse.errorMessage || 'Failed to pick image');
-            return;
-        }
+        const image = {
+            uri: imageUri,
+            type: 'image/jpeg',
+            name: 'tomato_image.jpg',
+        };
 
-        const image = imageResponse.assets[0];
         setSelectedImage(image);
 
         // Upload and predict
@@ -58,22 +51,54 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
-    const handleCaptureImage = () => {
-        launchCamera(imagePickerOptions, handleImagePicked);
+    const handleCaptureImage = async () => {
+        // Request camera permissions
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert('Permission Required', 'Camera permission is required to take photos');
+            return;
+        }
+
+        // Launch camera
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            handleImagePicked(result.assets[0].uri);
+        }
     };
 
-    const handlePickFromGallery = () => {
-        launchImageLibrary(imagePickerOptions, handleImagePicked);
+    const handlePickFromGallery = async () => {
+        // Request media library permissions
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert('Permission Required', 'Gallery permission is required to select photos');
+            return;
+        }
+
+        // Launch image picker
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            handleImagePicked(result.assets[0].uri);
+        }
     };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
-                <Image
-                    source={require('../assets/tomato-icon.png')}
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
+                <Text style={styles.logo}>🍅</Text>
                 <Text style={styles.title}>Tomato Disease Detector</Text>
                 <Text style={styles.subtitle}>
                     Detect diseases in your tomato plants using AI
@@ -142,8 +167,7 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     logo: {
-        width: 100,
-        height: 100,
+        fontSize: 80,
         marginBottom: 20,
     },
     title: {

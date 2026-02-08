@@ -97,7 +97,47 @@ async def health_check():
     }
 
 
+
+def start_ngrok():
+    """Start ngrok tunnel and print the public URL"""
+    try:
+        from pyngrok import ngrok, conf
+        from dotenv import load_dotenv
+        import os
+        
+        # Load environment variables
+        load_dotenv()
+        
+        # Check for authtoken
+        auth_token = os.getenv("NGROK_AUTHTOKEN")
+        if auth_token and auth_token != "your_token_here":
+            conf.get_default().auth_token = auth_token
+        else:
+            print("\n⚠️  WARNING: NGROK_AUTHTOKEN not found in .env file.")
+            print("   You may see an authentication error.")
+            print("   Get your token from https://dashboard.ngrok.com/get-started/your-authtoken")
+            print("   And add it to backend/.env\n")
+        
+        # Open a HTTP tunnel on the default port 8000
+        # Get public URL
+        public_url = ngrok.connect(8000).public_url
+        print(f"\n{'='*60}")
+        print(f"🚀 PUBLIC URL: {public_url}")
+        print(f"{'='*60}\n")
+        
+        # Update app description/docs with the URL
+        return public_url
+    except Exception as e:
+        print(f"Ngrok error: {e}")
+        return None
+
 if __name__ == "__main__":
+    # detailed startup info
+    print("Starting Tomato Disease Detection Server...")
+    
+    # Try to start ngrok
+    start_ngrok()
+    
     # Run the server
     uvicorn.run(
         "main:app",

@@ -1,15 +1,18 @@
 import axios from 'axios';
 
 // Configure your backend URL here
-// For local development:
+// For Expo:
 // - Android Emulator: use 10.0.2.2
 // - iOS Simulator: use localhost
 // - Physical Device: use your computer's IP address (e.g., 192.168.1.100)
-const API_BASE_URL = 'http://10.0.2.2:8000'; // Change this based on your setup
+// - Expo Go: use your computer's IP address
+
+// Change this to your computer's IP when testing on physical device or Expo Go
+const API_BASE_URL = 'https://5ccc-41-204-44-3.ngrok-free.app'; // Update with your IP address
 
 /**
  * Upload an image to the backend for disease prediction
- * @param {Object} imageFile - Image file object from react-native-image-picker
+ * @param {Object} imageFile - Image file object with uri, type, and name
  * @returns {Promise} - Promise resolving to prediction results
  */
 export const predictDisease = async (imageFile) => {
@@ -19,7 +22,7 @@ export const predictDisease = async (imageFile) => {
     formData.append('file', {
       uri: imageFile.uri,
       type: imageFile.type || 'image/jpeg',
-      name: imageFile.fileName || 'tomato_image.jpg',
+      name: imageFile.name || 'tomato_image.jpg',
     });
 
     // Send POST request to /predict endpoint
